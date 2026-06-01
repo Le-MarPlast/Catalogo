@@ -96,10 +96,17 @@ Le-Mar Plast Productos
 Columnas esperadas:
 
 ```text
-id,nombre,categoria,descripcion,precio,stock,imagen,activo
+id,nombre,categoria,descripcion,precio,stock,imagen,activo,destacado
 ```
 
 Los IDs se generan automaticamente tomando el mayor ID numerico y sumando 1.
+
+La columna `destacado` define si el producto aparece en el carrusel del catalogo. Valores esperados:
+
+```text
+SI
+NO
+```
 
 ## Pedidos
 

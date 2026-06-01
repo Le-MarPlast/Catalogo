@@ -7,6 +7,10 @@ MVP estático para publicar un catálogo en GitHub Pages, leer productos desde G
 - `index.html`: estructura de la página.
 - `styles.css`: estilos visuales.
 - `app.js`: carga de productos, filtros, carrito y generación del mensaje de WhatsApp.
+- `admin/`: prototipo estatico del panel de ABM.
+- `apps-script/Code.gs`: backend para administrar Google Sheets y subir imagenes a GitHub.
+- `apps-script/Index.html`, `Styles.html`, `Javascript.html`: panel ABM operativo servido por Apps Script.
+- `ADMIN.md`: guia de configuracion del ABM.
 
 ## Datos necesarios
 
@@ -17,6 +21,7 @@ const CONFIG = {
   storeName: "Le-mar Plast",
   whatsappNumber: "5491159624352",
   googleSheetCsvUrl: "",
+  ordersWebAppUrl: "",
   currency: "ARS",
   locale: "es-AR",
 };
@@ -33,13 +38,13 @@ El número de WhatsApp debe ir con código de país, sin espacios, sin `+` y sin
 Crear una hoja con estas columnas:
 
 ```text
-id,nombre,categoria,descripcion,precio,stock,imagen,activo
+id,nombre,categoria,descripcion,precio,stock,imagen,activo,destacado
 ```
 
 Ejemplo:
 
 ```text
-balde-10,Balde plástico 10 L,Hogar,Balde resistente,2500,12,https://example.com/balde.jpg,SI
+balde-10,Balde plástico 10 L,Hogar,Balde resistente,2500,12,https://example.com/balde.jpg,SI,SI
 ```
 
 Después publicar la hoja como CSV:
@@ -81,7 +86,9 @@ Google Drive puede usarse, pero no es lo más cómodo para catálogos porque sus
 
 ## Destacados
 
-El carrusel muestra automáticamente los primeros 5 productos activos con stock mayor a cero.
+El carrusel muestra hasta 5 productos activos, con stock mayor a cero y `destacado = SI`.
+
+Si no hay productos destacados, usa como fallback los primeros 5 productos activos con stock.
 
 ## Stock automático
 

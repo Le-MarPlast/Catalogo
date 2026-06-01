@@ -66,6 +66,9 @@ const state = {
   search: "",
   category: "",
   slide: 0,
+  carouselDragStart: 0,
+  carouselDragCurrent: 0,
+  carouselDragging: false,
 };
 
 const formatter = new Intl.NumberFormat(CONFIG.locale, {
@@ -135,6 +138,10 @@ function bindEvents() {
 
   elements.prevSlide.addEventListener("click", () => moveSlide(-1));
   elements.nextSlide.addEventListener("click", () => moveSlide(1));
+  elements.carouselTrack.addEventListener("pointerdown", startCarouselDrag);
+  elements.carouselTrack.addEventListener("pointermove", moveCarouselDrag);
+  elements.carouselTrack.addEventListener("pointerup", endCarouselDrag);
+  elements.carouselTrack.addEventListener("pointercancel", endCarouselDrag);
   elements.sendOrder.addEventListener("click", sendOrder);
 }
 
@@ -225,6 +232,7 @@ function normalizeProduct(product) {
     stock: Number(product.stock || 0),
     imagen: product.imagen || "",
     activo: product.activo || "SI",
+    destacado: product.destacado || "NO",
   };
 }
 
@@ -291,7 +299,9 @@ function renderCarousel() {
 }
 
 function getFeaturedProducts() {
-  return state.products.filter((product) => product.stock > 0).slice(0, 5);
+  const featured = state.products.filter((product) => product.stock > 0 && isActive(product.destacado));
+  const products = featured.length ? featured : state.products.filter((product) => product.stock > 0);
+  return products.slice(0, 5);
 }
 
 function moveSlide(direction) {
@@ -302,6 +312,43 @@ function moveSlide(direction) {
 
   state.slide = (state.slide + direction + featuredCount) % featuredCount;
   renderCarousel();
+}
+
+function startCarouselDrag(event) {
+  if (getFeaturedProducts().length <= 1) {
+    return;
+  }
+
+  state.carouselDragging = true;
+  state.carouselDragStart = event.clientX;
+  state.carouselDragCurrent = event.clientX;
+  elements.carouselTrack.setPointerCapture(event.pointerId);
+}
+
+function moveCarouselDrag(event) {
+  if (!state.carouselDragging) {
+    return;
+  }
+
+  state.carouselDragCurrent = event.clientX;
+}
+
+function endCarouselDrag(event) {
+  if (!state.carouselDragging) {
+    return;
+  }
+
+  const distance = state.carouselDragCurrent - state.carouselDragStart;
+  state.carouselDragging = false;
+
+  if (Math.abs(distance) < 45) {
+    return;
+  }
+
+  moveSlide(distance < 0 ? 1 : -1);
+  if (elements.carouselTrack.hasPointerCapture(event.pointerId)) {
+    elements.carouselTrack.releasePointerCapture(event.pointerId);
+  }
 }
 
 function renderProducts() {

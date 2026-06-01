@@ -135,6 +135,8 @@ h1 {
 .carousel-track {
   height: var(--featured-height);
   min-height: 0;
+  touch-action: pan-y;
+  user-select: none;
 }
 
 .carousel-slide {
