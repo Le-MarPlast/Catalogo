@@ -1,6 +1,6 @@
 const CONFIG = {
   storeName: "Le-mar Plast",
-  whatsappNumber: "5491159624352",
+  whatsappNumber: "5491154154625",
   googleSheetCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTUJ38W4ysjLtP6XYuAcHoTJ1l8zcNsb-eE7sfBD8mh24ikzNlCZxN4XAeixAaJIGzXnUWGgwHKtLpv/pub?gid=0&single=true&output=csv",
   ordersWebAppUrl: "https://script.google.com/macros/s/AKfycbyG0ffZuz6543VTJWBndKUgEeZP4j69JxNZbnk3S9MYrZfBzHCeFJY3qwCmr39W6YKg/exec",
   currency: "ARS",
