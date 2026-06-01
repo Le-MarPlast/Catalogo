@@ -2,6 +2,7 @@ const CONFIG = {
   storeName: "Le-mar Plast",
   whatsappNumber: "5491159624352",
   googleSheetCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTUJ38W4ysjLtP6XYuAcHoTJ1l8zcNsb-eE7sfBD8mh24ikzNlCZxN4XAeixAaJIGzXnUWGgwHKtLpv/pub?gid=0&single=true&output=csv",
+  ordersWebAppUrl: "https://script.google.com/macros/s/AKfycbyG0ffZuz6543VTJWBndKUgEeZP4j69JxNZbnk3S9MYrZfBzHCeFJY3qwCmr39W6YKg/exec",
   currency: "ARS",
   locale: "es-AR",
 };
@@ -414,9 +415,18 @@ function sendOrder() {
     return;
   }
 
-  const lines = entries.map(([productId, quantity]) => {
+  const orderItems = entries.map(([productId, quantity]) => {
     const product = findProduct(productId);
-    return `- ${quantity} x ${product.nombre} - ${formatter.format(product.precio)} c/u`;
+    return {
+      id: product.id,
+      nombre: product.nombre,
+      cantidad: quantity,
+      precio: product.precio,
+      subtotal: product.precio * quantity,
+    };
+  });
+  const lines = orderItems.map((item) => {
+    return `- ${item.cantidad} x ${item.nombre} - ${formatter.format(item.precio)} c/u`;
   });
   const total = entries.reduce((sum, [productId, quantity]) => {
     const product = findProduct(productId);
@@ -434,7 +444,40 @@ function sendOrder() {
     delivery ? `Entrega: ${delivery}` : "Entrega:",
   ].join("\n");
 
+  saveOrder({
+    nombre: name,
+    entrega: delivery,
+    items: orderItems,
+    total,
+    origen: window.location.href,
+  });
   window.open(whatsappUrl(message), "_blank", "noopener");
+}
+
+function saveOrder(order) {
+  if (!CONFIG.ordersWebAppUrl) {
+    return;
+  }
+
+  const payload = JSON.stringify({
+    action: "saveOrder",
+    order,
+  });
+
+  if (navigator.sendBeacon) {
+    const blob = new Blob([payload], { type: "text/plain;charset=utf-8" });
+    navigator.sendBeacon(CONFIG.ordersWebAppUrl, blob);
+    return;
+  }
+
+  fetch(CONFIG.ordersWebAppUrl, {
+    method: "POST",
+    mode: "no-cors",
+    headers: {
+      "Content-Type": "text/plain;charset=utf-8",
+    },
+    body: payload,
+  }).catch(() => {});
 }
 
 function findProduct(productId) {
